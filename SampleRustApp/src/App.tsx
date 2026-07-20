@@ -1,49 +1,115 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { FormEvent, useCallback, useEffect, useState } from "react";
+
+import {
+  createNote,
+  deleteNote,
+  getNotes,
+  type Note,
+} from "./services/noteService";
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
+  const loadNotes = useCallback(async (): Promise<void> => {
+    try {
+      const result = await getNotes();
+      setNotes(result);
+    } catch (error) {
+      setErrorMessage(String(error));
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadNotes();
+  }, [loadNotes]);
+
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ): Promise<void> {
+    event.preventDefault();
+
+    try {
+      setErrorMessage("");
+
+      await createNote(title, content);
+
+      setTitle("");
+      setContent("");
+
+      await loadNotes();
+    } catch (error) {
+      setErrorMessage(String(error));
+    }
+  }
+
+  async function handleDelete(id: number): Promise<void> {
+    try {
+      setErrorMessage("");
+
+      await deleteNote(id);
+      await loadNotes();
+    } catch (error) {
+      setErrorMessage(String(error));
+    }
   }
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
+    <main>
+      <h1>SQLiteメモアプリ</h1>
 
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="title">タイトル</label>
 
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
+          <input
+            id="title"
+            value={title}
+            onChange={(event) => {
+              setTitle(event.target.value);
+            }}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="content">内容</label>
+
+          <textarea
+            id="content"
+            value={content}
+            onChange={(event) => {
+              setContent(event.target.value);
+            }}
+          />
+        </div>
+
+        <button type="submit">保存</button>
       </form>
-      <p>{greetMsg}</p>
+
+      {errorMessage && <p role="alert">{errorMessage}</p>}
+
+      <ul>
+        {notes.map((note) => (
+          <li key={note.id}>
+            <h2>{note.title}</h2>
+            <p>{note.content}</p>
+            <small>{note.createdAt}</small>
+
+            <div>
+              <button
+                type="button"
+                onClick={() => {
+                  void handleDelete(note.id);
+                }}
+              >
+                削除
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
     </main>
   );
 }
