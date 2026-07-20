@@ -1,6 +1,8 @@
 mod commands;
 mod models;
+mod platform;
 mod repositories;
+mod states;
 
 use std::fs;
 
@@ -9,6 +11,15 @@ use tauri::Manager;
 
 use commands::note_command::{create_note, delete_note, get_note, get_notes, update_note};
 use repositories::note_repository::NoteRepository;
+
+use commands::active_window_command::{
+    get_active_window_logs,
+    start_active_window_monitor,
+    stop_active_window_monitor,
+    update_active_window_interval,
+};
+use repositories::active_window_repository::ActiveWindowRepository;
+use states::active_window_monitor_state::ActiveWindowMonitorState;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -54,13 +65,14 @@ pub fn run() {
                 Ok::<_, Box<dyn std::error::Error>>(pool)
             })?;
 
-            let repository = NoteRepository::new(pool);
+            let note_repository = NoteRepository::new(pool.clone());
 
-            /*
-             * Repositoryをアプリ全体の共有状態として登録する。
-             * CommandからState<NoteRepository>として取得できる。
-             */
-            app.manage(repository);
+            let active_window_repository =
+                ActiveWindowRepository::new(pool);
+
+            app.manage(note_repository);
+            app.manage(active_window_repository);
+            app.manage(ActiveWindowMonitorState::new());
 
             Ok(())
         })
@@ -72,6 +84,11 @@ pub fn run() {
             commands::note_command::get_note,
             commands::note_command::update_note,
             commands::note_command::delete_note,
+
+            commands::active_window_command::start_active_window_monitor,
+            commands::active_window_command::update_active_window_interval,
+            commands::active_window_command::stop_active_window_monitor,
+            commands::active_window_command::get_active_window_logs,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
