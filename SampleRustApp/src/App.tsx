@@ -1,4 +1,5 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { ActiveWindowMonitor } from "./components/activeWindowMonitor";
 
 import {
   createNote,
@@ -110,6 +111,7 @@ function App() {
           </li>
         ))}
       </ul>
+      <ActiveWindowMonitor />
     </main>
   );
 }
