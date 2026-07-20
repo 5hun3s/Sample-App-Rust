@@ -6,6 +6,7 @@ import ActiveWindowMonitor from "./components/activeWindowMonitor";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
+    <App/>
     <ActiveWindowMonitor/>
   </React.StrictMode>,
 );
