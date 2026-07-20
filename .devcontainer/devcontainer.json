@@ -1,0 +1,24 @@
+{
+  "name": "Rust React Tauri",
+  "build": { "dockerfile": "Dockerfile" },
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" },
+    "ghcr.io/devcontainers/features/rust:1": { "version": "stable", "profile": "minimal" }
+  },
+  "forwardPorts": [1420],
+  "portsAttributes": {
+    "1420": { "label": "Vite frontend", "onAutoForward": "openBrowser" }
+  },
+  "postCreateCommand": "npm ci && cargo fetch --manifest-path src-tauri/Cargo.toml",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "tauri-apps.tauri-vscode",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+  "remoteUser": "vscode"
+}

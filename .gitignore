@@ -13,6 +13,16 @@ target
 # Contains mutation testing data
 **/mutants.out*/
 
+# Node / Vite
+node_modules/
+dist/
+*.local
+
+# Editors and operating systems
+.DS_Store
+*.Zone.Identifier
+.vscode/
+
 # RustRover
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
