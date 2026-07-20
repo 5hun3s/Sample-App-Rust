@@ -21,7 +21,6 @@ use commands::active_window_command::{
 };
 use repositories::active_window_repository::ActiveWindowRepository;
 use states::active_window_monitor_state::ActiveWindowMonitorState;
-use repositories::note_repository::NoteRepository;
 use states::watcher_state::WatcherState;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
