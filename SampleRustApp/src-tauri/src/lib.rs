@@ -3,6 +3,7 @@ mod models;
 mod platform;
 mod repositories;
 mod states;
+mod services;
 
 use std::fs;
 
@@ -20,6 +21,8 @@ use commands::active_window_command::{
 };
 use repositories::active_window_repository::ActiveWindowRepository;
 use states::active_window_monitor_state::ActiveWindowMonitorState;
+use repositories::note_repository::NoteRepository;
+use states::watcher_state::WatcherState;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -73,7 +76,10 @@ pub fn run() {
             app.manage(note_repository);
             app.manage(active_window_repository);
             app.manage(ActiveWindowMonitorState::new());
-
+                      /*
+             * フォルダ監視状態をTauriへ登録する。
+             */
+            app.manage(WatcherState::new());
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
@@ -89,6 +95,10 @@ pub fn run() {
             commands::active_window_command::update_active_window_interval,
             commands::active_window_command::stop_active_window_monitor,
             commands::active_window_command::get_active_window_logs,
+
+            commands::watcher_command::start_folder_watcher,
+            commands::watcher_command::stop_folder_watcher,
+            commands::watcher_command::get_watcher_status,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
