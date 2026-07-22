@@ -10,17 +10,10 @@ use std::fs;
 use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
 use tauri::Manager;
 
-use commands::active_window_command::{
-    get_active_window_logs,
-    start_active_window_monitor,
-    stop_active_window_monitor,
-    update_active_window_interval,
-};
 use repositories::{
     activity_repository::ActivityRepository,
     note_repository::NoteRepository,
 };
-use states::active_window_monitor_state::ActiveWindowMonitorState;
 use states::activity_monitor_state::ActivityMonitorState;
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
