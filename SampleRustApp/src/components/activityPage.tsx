@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import reactLogo from "../assets/react.svg";
 
 import {
   getActivityLogs,
@@ -72,7 +73,9 @@ export function ActivityPage() {
   return (
     <main className="activity-page">
       <header className="app-header">
-        <div className="app-mark" aria-hidden="true">JS</div>
+        <div className="app-mark" aria-hidden="true">
+          <img src={reactLogo} alt="" />
+        </div>
         <h1>ウィンドウ操作履歴</h1>
       </header>
 

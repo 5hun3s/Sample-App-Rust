@@ -5,11 +5,12 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --js-yellow: #f7df1e;
-  --panel: #15171c;
-  --panel-raised: #1b1e24;
-  --line: #292d35;
-  --muted: #8b919e;
+  --react-blue: #61dafb;
+  --react-blue-bright: #8be7ff;
+  --panel: #151a22;
+  --panel-raised: #1a202a;
+  --line: #2a3340;
+  --muted: #929cab;
 }
 
 * {
@@ -27,7 +28,8 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-    radial-gradient(circle at 85% -10%, rgba(247, 223, 30, 0.09), transparent 30rem),
+    radial-gradient(circle at 82% -8%, rgba(97, 218, 251, 0.13), transparent 34rem),
+    radial-gradient(circle at 0% 48%, rgba(88, 121, 255, 0.06), transparent 30rem),
     linear-gradient(135deg, rgba(255, 255, 255, 0.018) 25%, transparent 25%) 0 0 / 24px 24px,
     #0c0d10;
 }
@@ -55,16 +57,17 @@ input {
   display: grid;
   flex: 0 0 46px;
   height: 46px;
-  place-items: end;
-  padding: 5px 6px;
-  color: #171717;
-  background: var(--js-yellow);
-  border-radius: 5px;
-  box-shadow: 0 0 28px rgba(247, 223, 30, 0.12);
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1;
+  place-items: center;
+  background: rgba(97, 218, 251, 0.08);
+  border: 1px solid rgba(97, 218, 251, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(97, 218, 251, 0.08);
+}
+
+.app-mark img {
+  width: 30px;
+  height: 30px;
+  animation: react-spin 18s linear infinite;
 }
 
 h1 {
@@ -103,7 +106,7 @@ h1 {
   width: 150px;
   height: 42px;
   padding: 0 13px;
-  color: var(--js-yellow);
+  color: var(--react-blue);
   background: #0f1115;
   border: 1px solid #343943;
   border-radius: 6px;
@@ -115,8 +118,8 @@ h1 {
 }
 
 .interval-field input:focus {
-  border-color: rgba(247, 223, 30, 0.75);
-  box-shadow: 0 0 0 3px rgba(247, 223, 30, 0.1);
+  border-color: rgba(97, 218, 251, 0.75);
+  box-shadow: 0 0 0 3px rgba(97, 218, 251, 0.1);
 }
 
 .interval-field input:disabled {
@@ -162,7 +165,7 @@ h1 {
 }
 
 .button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(247, 223, 30, 0.12);
+  box-shadow: 0 0 0 3px rgba(97, 218, 251, 0.14);
 }
 
 .button:disabled {
@@ -171,14 +174,15 @@ h1 {
 }
 
 .button-start {
-  color: #171717;
-  background: var(--js-yellow);
-  border-color: var(--js-yellow);
+  color: #071216;
+  background: var(--react-blue);
+  border-color: var(--react-blue);
+  box-shadow: 0 6px 20px rgba(97, 218, 251, 0.12);
 }
 
 .button-start:hover:not(:disabled) {
-  background: #ffe735;
-  border-color: #ffe735;
+  background: var(--react-blue-bright);
+  border-color: var(--react-blue-bright);
 }
 
 .button-start::before {
@@ -284,7 +288,7 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background: rgba(247, 223, 30, 0.035);
+  background: rgba(97, 218, 251, 0.045);
 }
 
 tbody tr:last-child td {
@@ -322,8 +326,12 @@ td {
   white-space: nowrap;
 }
 
-.duration-cell { color: var(--js-yellow); }
+.duration-cell { color: var(--react-blue); }
 .idle-cell { color: #aab0bc; }
+
+@keyframes react-spin {
+  to { transform: rotate(360deg); }
+}
 
 ::-webkit-scrollbar {
   width: 10px;
@@ -347,4 +355,5 @@ td {
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; }
+  .app-mark img { animation: none; }
 }
