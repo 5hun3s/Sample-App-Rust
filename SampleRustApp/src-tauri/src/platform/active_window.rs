@@ -17,22 +17,21 @@ pub struct ActiveWindowInfo {
 }
 
 #[cfg(target_os = "windows")]
-pub fn get_active_window_info() -> Result<Option<ActiveWindowInfo>, String> {
+pub fn get_active_window_info(
+) -> Result<Option<ActiveWindowInfo>, String> {
     use std::path::Path;
 
     use windows_sys::Win32::{
-        Foundation::{CloseHandle, RECT},
-        System::{
-            SystemInformation::GetTickCount,
-            Threading::{
-                OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32,
-                PROCESS_QUERY_LIMITED_INFORMATION,
-            },
-        },
+        Foundation::RECT,
         UI::WindowsAndMessaging::{
-            GetClassNameW, GetForegroundWindow, GetLastInputInfo, GetWindowRect,
-            GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId, IsIconic, IsZoomed,
-            LASTINPUTINFO,
+            GetClassNameW,
+            GetForegroundWindow,
+            GetWindowRect,
+            GetWindowTextLengthW,
+            GetWindowTextW,
+            GetWindowThreadProcessId,
+            IsIconic,
+            IsZoomed,
         },
     };
 
@@ -43,17 +42,23 @@ pub fn get_active_window_info() -> Result<Option<ActiveWindowInfo>, String> {
             return Ok(None);
         }
 
-        // ウィンドウタイトル取得
-        let title_length = GetWindowTextLengthW(window_handle);
+        let title_length =
+            GetWindowTextLengthW(window_handle);
 
         let window_title = if title_length > 0 {
-            let mut buffer = vec![0_u16; title_length as usize + 1];
+            let mut buffer =
+                vec![0_u16; title_length as usize + 1];
 
-            let copied_length =
-                GetWindowTextW(window_handle, buffer.as_mut_ptr(), buffer.len() as i32);
+            let copied_length = GetWindowTextW(
+                window_handle,
+                buffer.as_mut_ptr(),
+                buffer.len() as i32,
+            );
 
             if copied_length > 0 {
-                String::from_utf16_lossy(&buffer[..copied_length as usize])
+                String::from_utf16_lossy(
+                    &buffer[..copied_length as usize],
+                )
             } else {
                 String::new()
             }
@@ -61,12 +66,13 @@ pub fn get_active_window_info() -> Result<Option<ActiveWindowInfo>, String> {
             String::new()
         };
 
-        // プロセスID取得
         let mut process_id = 0_u32;
 
-        GetWindowThreadProcessId(window_handle, &mut process_id);
+        GetWindowThreadProcessId(
+            window_handle,
+            &mut process_id,
+        );
 
-        // ウィンドウクラス名取得
         let mut class_buffer = vec![0_u16; 256];
 
         let class_length = GetClassNameW(
@@ -83,12 +89,17 @@ pub fn get_active_window_info() -> Result<Option<ActiveWindowInfo>, String> {
             None
         };
 
-        // ウィンドウ位置・サイズ取得
         let mut rect = RECT::default();
 
-        let rect_result = GetWindowRect(window_handle, &mut rect);
+        let rect_result =
+            GetWindowRect(window_handle, &mut rect);
 
-        let (window_x, window_y, window_width, window_height) = if rect_result != 0 {
+        let (
+            window_x,
+            window_y,
+            window_width,
+            window_height,
+        ) = if rect_result != 0 {
             (
                 Some(rect.left),
                 Some(rect.top),
@@ -99,18 +110,24 @@ pub fn get_active_window_info() -> Result<Option<ActiveWindowInfo>, String> {
             (None, None, None, None)
         };
 
-        let is_maximized = IsZoomed(window_handle) != 0;
-        let is_minimized = IsIconic(window_handle) != 0;
+        let is_maximized =
+            IsZoomed(window_handle) != 0;
 
-        // 実行ファイルパス取得
-        let executable_path = get_process_executable_path(process_id);
+        let is_minimized =
+            IsIconic(window_handle) != 0;
 
-        // フルパスからファイル名だけ抽出
-        let process_name = executable_path.as_ref().and_then(|path| {
-            Path::new(path)
-                .file_name()
-                .map(|name| name.to_string_lossy().to_string())
-        });
+        let executable_path =
+            get_process_executable_path(process_id);
+
+        let process_name = executable_path
+            .as_ref()
+            .and_then(|path| {
+                Path::new(path)
+                    .file_name()
+                    .map(|name| {
+                        name.to_string_lossy().to_string()
+                    })
+            });
 
         let idle_seconds = get_idle_seconds();
 
@@ -131,9 +148,28 @@ pub fn get_active_window_info() -> Result<Option<ActiveWindowInfo>, String> {
             idle_seconds,
         }))
     }
+}
 
-    unsafe fn get_process_executable_path(process_id: u32) -> Option<String> {
-        let process_handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, process_id);
+#[cfg(target_os = "windows")]
+fn get_process_executable_path(
+    process_id: u32,
+) -> Option<String> {
+    use windows_sys::Win32::{
+        Foundation::CloseHandle,
+        System::Threading::{
+            OpenProcess,
+            QueryFullProcessImageNameW,
+            PROCESS_NAME_WIN32,
+            PROCESS_QUERY_LIMITED_INFORMATION,
+        },
+    };
+
+    unsafe {
+        let process_handle = OpenProcess(
+            PROCESS_QUERY_LIMITED_INFORMATION,
+            0,
+            process_id,
+        );
 
         if process_handle.is_null() {
             return None;
@@ -155,16 +191,32 @@ pub fn get_active_window_info() -> Result<Option<ActiveWindowInfo>, String> {
             return None;
         }
 
-        Some(String::from_utf16_lossy(&buffer[..size as usize]))
+        Some(String::from_utf16_lossy(
+            &buffer[..size as usize],
+        ))
     }
+}
 
-    unsafe fn get_idle_seconds() -> u64 {
+#[cfg(target_os = "windows")]
+fn get_idle_seconds() -> u64 {
+    use windows_sys::Win32::{
+        System::SystemInformation::GetTickCount,
+        UI::Input::KeyboardAndMouse::{
+            GetLastInputInfo,
+            LASTINPUTINFO,
+        },
+    };
+
+    unsafe {
         let mut input_info = LASTINPUTINFO {
-            cbSize: std::mem::size_of::<LASTINPUTINFO>() as u32,
+            cbSize: std::mem::size_of::<
+                LASTINPUTINFO,
+            >() as u32,
             dwTime: 0,
         };
 
-        let result = GetLastInputInfo(&mut input_info);
+        let result =
+            GetLastInputInfo(&mut input_info);
 
         if result == 0 {
             return 0;
@@ -172,14 +224,17 @@ pub fn get_active_window_info() -> Result<Option<ActiveWindowInfo>, String> {
 
         let current_tick = GetTickCount();
 
-        let idle_milliseconds = current_tick.wrapping_sub(input_info.dwTime);
+        let idle_milliseconds =
+            current_tick.wrapping_sub(
+                input_info.dwTime,
+            );
 
         u64::from(idle_milliseconds) / 1_000
     }
 }
 
 #[cfg(not(target_os = "windows"))]
-pub fn get_active_window_info() -> Result<Option<ActiveWindowInfo>, String> {
-    // UbuntuのDev ContainerではWindows情報を取得できない
+pub fn get_active_window_info(
+) -> Result<Option<ActiveWindowInfo>, String> {
     Ok(None)
 }

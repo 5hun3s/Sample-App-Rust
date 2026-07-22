@@ -10,9 +10,6 @@ use std::fs;
 use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
 use tauri::Manager;
 
-use commands::note_command::{create_note, delete_note, get_note, get_notes, update_note};
-use repositories::note_repository::NoteRepository;
-
 use commands::active_window_command::{
     get_active_window_logs,
     start_active_window_monitor,
@@ -72,12 +69,8 @@ pub fn run() {
             let note_repository = NoteRepository::new(pool.clone());
             let activity_repository =
                 ActivityRepository::new(pool);
-            let active_window_repository =
-                ActiveWindowRepository::new(pool);
 
             app.manage(note_repository);
-            app.manage(active_window_repository);
-            app.manage(ActiveWindowMonitorState::new());
             app.manage(activity_repository);
             app.manage(ActivityMonitorState::new());
 
