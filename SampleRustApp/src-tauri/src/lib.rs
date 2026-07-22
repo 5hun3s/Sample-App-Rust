@@ -84,11 +84,6 @@ pub fn run() {
             commands::note_command::get_note,
             commands::note_command::update_note,
             commands::note_command::delete_note,
-
-            commands::active_window_command::start_active_window_monitor,
-            commands::active_window_command::update_active_window_interval,
-            commands::active_window_command::stop_active_window_monitor,
-            commands::active_window_command::get_active_window_logs,
             
             commands::activity_command::start_activity_monitor,
             commands::activity_command::change_activity_interval,
