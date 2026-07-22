@@ -21,5 +21,8 @@ pub struct ActivityLog {
     pub is_minimized: bool,
 
     pub idle_seconds: i64,
-    pub recorded_at: String,
+
+    pub started_at: String,
+    pub ended_at: String,
+    pub duration_seconds: i64,
 }

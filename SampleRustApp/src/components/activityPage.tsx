@@ -47,6 +47,25 @@ export function ActivityPage() {
       setErrorMessage(String(error));
     }
   }
+  function formatDuration(totalSeconds: number): string {
+  const hours = Math.floor(totalSeconds / 3600);
+
+  const minutes = Math.floor(
+    (totalSeconds % 3600) / 60,
+  );
+
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}時間${minutes}分${seconds}秒`;
+  }
+
+  if (minutes > 0) {
+    return `${minutes}分${seconds}秒`;
+  }
+
+  return `${seconds}秒`;
+}
 
   useEffect(() => {
     void loadLogs();
@@ -97,21 +116,33 @@ export function ActivityPage() {
       <table>
         <thead>
           <tr>
-            <th>記録日時</th>
-            <th>アプリ</th>
-            <th>ウィンドウタイトル</th>
-            <th>プロセスID</th>
-            <th>アイドル秒数</th>
+      <th>開始・終了日時</th>
+      <th>アプリ</th>
+      <th>ウィンドウタイトル</th>
+      <th>経過時間</th>
+      <th>アイドル秒数</th>
           </tr>
         </thead>
 
         <tbody>
           {logs.map((log) => (
             <tr key={log.id}>
-              <td>{log.recordedAt}</td>
+              <td>
+                <div>{log.startedAt}</div>
+                <div>～</div>
+                <div>{log.endedAt}</div>
+              </td>
+
               <td>{log.processName ?? "不明"}</td>
+
               <td>{log.windowTitle}</td>
-              <td>{log.processId}</td>
+
+              <td>
+                {formatDuration(
+                  log.durationSeconds,
+                )}
+              </td>
+
               <td>{log.idleSeconds}秒</td>
             </tr>
           ))}

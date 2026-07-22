@@ -18,7 +18,10 @@ export type ActivityLog = {
   isMinimized: boolean;
 
   idleSeconds: number;
-  recordedAt: string;
+
+  startedAt: string;
+  endedAt: string;
+  durationSeconds: number;
 };
 
 export async function startActivityMonitor(
