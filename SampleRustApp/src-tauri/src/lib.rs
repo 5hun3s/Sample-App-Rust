@@ -3,6 +3,7 @@ mod models;
 mod platform;
 mod repositories;
 mod states;
+mod services;
 
 use std::fs;
 
@@ -18,9 +19,12 @@ use commands::active_window_command::{
     stop_active_window_monitor,
     update_active_window_interval,
 };
-use repositories::active_window_repository::ActiveWindowRepository;
+use repositories::{
+    activity_repository::ActivityRepository,
+    note_repository::NoteRepository,
+};
 use states::active_window_monitor_state::ActiveWindowMonitorState;
-
+use states::activity_monitor_state::ActivityMonitorState;
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -66,13 +70,16 @@ pub fn run() {
             })?;
 
             let note_repository = NoteRepository::new(pool.clone());
-
+            let activity_repository =
+                ActivityRepository::new(pool);
             let active_window_repository =
                 ActiveWindowRepository::new(pool);
 
             app.manage(note_repository);
             app.manage(active_window_repository);
             app.manage(ActiveWindowMonitorState::new());
+            app.manage(activity_repository);
+            app.manage(ActivityMonitorState::new());
 
             Ok(())
         })
@@ -89,6 +96,13 @@ pub fn run() {
             commands::active_window_command::update_active_window_interval,
             commands::active_window_command::stop_active_window_monitor,
             commands::active_window_command::get_active_window_logs,
+            
+            commands::activity_command::start_activity_monitor,
+            commands::activity_command::change_activity_interval,
+            commands::activity_command::stop_activity_monitor,
+            commands::activity_command::is_activity_monitor_running,
+            commands::activity_command::get_activity_logs,
+            commands::activity_command::delete_all_activity_logs,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
